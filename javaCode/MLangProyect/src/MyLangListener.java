@@ -17,12 +17,17 @@ public class MyLangListener implements MLangListener {
 	 */
 
 	/*	Map for declaring variables and check for semantic errors
-	 *	String = variable name
-	 *  String = type (matrix/integer)
+	 *	String		= variable name
+	 *  String	= Value
 	 */
-	public HashMap<String, String> variables = new HashMap<String, String>();
-
-
+	public HashMap<String, String> declared_int		= new HashMap<String, String>();
+	public HashMap<String, String> declared_matrix	= new HashMap<String, String>();
+	boolean is_matrix 		= false;
+	boolean is_int 			= false;
+	boolean is_declaration 	= false;
+	boolean is_asignation 	= false;
+	boolean is_expression 	= false;
+	boolean is_write		= false;
 	public String translation = "";
 
 
@@ -71,13 +76,27 @@ public class MyLangListener implements MLangListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterDeclaration(MLangParser.DeclarationContext ctx) { }
+	@Override public void enterDeclaration(MLangParser.DeclarationContext ctx) {
+		is_int 			= false;
+		is_matrix		= false;
+		is_asignation	= false;
+		is_expression	= false;
+		is_write		= false;
+		is_declaration	= true;
+	}
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitDeclaration(MLangParser.DeclarationContext ctx) { }
+	@Override public void exitDeclaration(MLangParser.DeclarationContext ctx) {
+		is_int 			= false;
+		is_matrix		= false;
+		is_asignation	= false;
+		is_expression	= false;
+		is_write		= false;
+		is_declaration	= false;
+	}
 	/**
 	 * {@inheritDoc}
 	 *
@@ -274,6 +293,8 @@ public class MyLangListener implements MLangListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void enterTk_type_int(MLangParser.Tk_type_intContext ctx) {
+		is_int = true;
+		is_matrix = false;
 		translation += "double ";
 	}
 	/**
@@ -288,7 +309,9 @@ public class MyLangListener implements MLangListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void enterTk_type_matrix(MLangParser.Tk_type_matrixContext ctx) {
-		translation += "Matrix ";
+		is_int		=	false;
+		is_matrix	= 	true;
+		translation += 	"Matrix ";
 		//System.out.println(">>>> " + ctx.getStart().getLine() + "." + ctx.getStart().getCharPositionInLine() + ":" + (ctx.getText().length() + ctx.getStart().getCharPositionInLine()));
 	}
 	/**
@@ -304,6 +327,29 @@ public class MyLangListener implements MLangListener {
 	 */
 	@Override public void enterTk_id(MLangParser.Tk_idContext ctx) {
 		translation += ctx.getText();
+
+		if(is_declaration){
+			if(is_matrix){
+				declared_matrix.put(ctx.getText(), "");
+			}
+			if(is_int){
+				declared_int.put(ctx.getText(), "");
+			}
+		}else if(is_asignation){
+			/*	In case variable is not being declared, check if it was declared*/
+			/* Here must also check if the variable type the type of value it should be assigned*/
+			// Must also check here that the value that is being assigned is the type it should be assigned
+			if(!declared_matrix.containsKey(ctx.getText())){
+
+			}
+			if(!declared_int.containsKey(ctx.getText())){
+
+			}
+		}else if(is_expression){
+			/*	In case variable is not being declared, check if it was declared and assigned a value */
+		}else if(is_write) {
+			/* Check if the variables was declared and assigned a value */
+		}
 	}
 	/**
 	 * {@inheritDoc}
