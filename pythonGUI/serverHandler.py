@@ -1,6 +1,9 @@
+from asyncio import subprocess
+from asyncore import write
+from tkinter import messagebox
 from webbrowser import get
 from py4j.java_gateway import JavaGateway
-
+import shutil
 """
 Importing TkInter
 TkInter    is   a   binding   lib   from   tlc/tk.
@@ -32,6 +35,7 @@ class TheMainWindow:
     def file_new(self):
         self.text_one.delete("1.0", END)
         root.title("New File")
+        self.current_open_file_path = ""
     """
     Method for opening ml files
     Will open a file dialog to open desired file.
@@ -44,11 +48,36 @@ class TheMainWindow:
         self.text_one.delete("1.0", END)
         # File dialog -> grabs file name and location
         location = filedialog.askopenfilename(initialdir="./", title="Open File", filetypes=(("MLang Files", "*.ml"),))
+        if location:
+            self.current_open_file_path = location
         root.title(os.path.split(location)[1])
         text_file = open(location, 'r')
         the_txt = text_file.read()
         self.text_one.insert(END, the_txt)
         text_file.close()
+    """
+    Method for saving as
+    """
+    def file_save_as(self):
+        # self.file_new()
+        # Change this line 60 for setting the default directory
+        mlang_file = filedialog.asksaveasfilename(defaultextension=".ml",
+                                                initialdir="C:/Users/Gar-m/Desktop/javaMLang/running_examples",
+                                                title="Save File",
+                                                filetypes=  (("MLang Files", "*.ml"),))
+        # if filename exists
+        if mlang_file:
+            self.current_open_file_path = mlang_file
+            name = os.path.split(mlang_file)[1]
+            # path
+            p = os.path.split(mlang_file)[0]
+            root.title(name)
+            # Save file
+            mlang_file = open(mlang_file, 'w')
+            mlang_file.write(self.text_one.get(1.0, END))
+            # Close the file
+            mlang_file.close()
+
     """
     Method for saving file changes
     This will save all the current code on
@@ -57,7 +86,12 @@ class TheMainWindow:
         if not create add files
     """
     def file_save(self):
-        pass
+        if self.current_open_file_path:
+            mlang_file = open(self.current_open_file_path, 'w')
+            mlang_file.write(self.text_one.get(1.0, END))
+            mlang_file.close()
+        else:
+            self.file_save_as()
     """
     Method for making the translation and show it on right panel.
     Will make and save changes to cpp
@@ -66,9 +100,13 @@ class TheMainWindow:
     """
     def make_translation(self):
         txt_input = self.text_one.get("1.0", "end")             # Getting the whole txt on GUI
-        translation = self.java_server_handler.getTranslation(txt_input)
         self.tokens_print_space.config(state = "normal")
         self.tokens_print_space.delete("1.0", END)
+        translation = ""
+        try:
+            translation = self.java_server_handler.getTranslation(txt_input)
+        except Exception as msg:
+            messagebox.showerror("erro", msg)
         self.tokens_print_space.insert(END, translation)
         self.tokens_print_space.config(state = "disabled")
     """
@@ -77,7 +115,20 @@ class TheMainWindow:
         if not cancel
     """
     def run_translation(self):
-        pass
+        self.file_save()
+        self.make_translation()
+        p = os.path.split(self.current_open_file_path)[0] + '/'
+        name = os.path.split(self.current_open_file_path)[1].split(".")[0]+'.cpp'
+        cpp_file = open(p + name, 'w')
+        print(p+name)
+        self.tokens_print_space.config(state = "normal")
+        cpp_file.write(self.tokens_print_space.get(1.0, END))
+        self.tokens_print_space.config(state = "disabled")
+        cpp_file.close()
+        shutil.copyfile("C:/Users/Gar-m/Desktop/javaMLang/pythonGUI/matrixLib/Matrix.h", p+"Matrix.h")
+        os.system("g++ "+ p+name + " -o example")
+        os.system("example")
+
     
     """
     Method for running the java server
@@ -115,15 +166,20 @@ class TheMainWindow:
         """
         self.main_window = Frame(self.root)                 # Input Tkinter main constructor into Frame
         """
+        Attribute for storing current file path
+        """
+        self.current_open_file_path = ""
+        """
         Creating menu bar
         """
         self.menu_bar =  Menu(self.root)
         self.filemenu = Menu(self.menu_bar, tearoff=0)
         self.filemenu.add_command(label="New", command=self.file_new)
         self.filemenu.add_command(label="Open", command=self.file_open)
-        self.filemenu.add_command(label="Save", command=self.hi)
+        self.filemenu.add_command(label="Save", command=self.file_save)
+        self.filemenu.add_command(label="Save as", command=self.file_save_as)
         self.filemenu.add_command(label="Translate", command=self.make_translation)
-        self.filemenu.add_command(label="Run", command=self.hi)
+        self.filemenu.add_command(label="Run", command=self.run_translation)
         self.filemenu.add_separator()
         self.root.config(menu=self.filemenu)
         """
