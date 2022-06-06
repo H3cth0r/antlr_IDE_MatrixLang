@@ -20,3 +20,6 @@ As we are running the IDE on python popular GUI creation Tinkr, we made use of s
 
 ## Compile and Run
 For doing this step you must firstly setup antlr, then you may do this part. For staing¡ing antlr, you must 
+```
+"C:\Program Files\Java\jdk-17.0.3.1\bin\java.exe" "-javaagent:C:\Program Files\JetBrains\IntelliJ IDEA Community Edition 2022.1.1\lib\idea_rt.jar=49338:C:\Program Files\JetBrains\IntelliJ IDEA Community Edition 2022.1.1\bin" -Dfile.encoding=UTF-8 -classpath C:\Users\Gar-m\Desktop\javaMLang\javaCode\MLangProyect\out\production\MLangProyect;C:\Users\Gar-m\Desktop\lecole\metcompu\MatrixLang\src\antlr-4.10.1-complete.jar;C:\Users\Gar-m\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.10_qbz5n2kfra8p0\LocalCache\local-packages\share\py4j\py4j0.10.9.5.jar serverHandler
+```
