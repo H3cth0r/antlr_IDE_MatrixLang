@@ -16,6 +16,8 @@ from tkinter import *
 from collections import deque
 from tkinter import filedialog
 import os
+import tkinter.font as tkFont
+from pathlib import Path
 
 """
 Main class that will enable us to generate a window.
@@ -55,14 +57,19 @@ class TheMainWindow:
         the_txt = text_file.read()
         self.text_one.insert(END, the_txt)
         text_file.close()
+        self.updater()
     """
     Method for saving as
     """
     def file_save_as(self):
         # self.file_new()
         # Change this line 60 for setting the default directory
+        # mlang_file = filedialog.asksaveasfilename(defaultextension=".ml",
+        #                                         initialdir="C:/Users/Gar-m/Desktop/javaMLang/running_examples",
+        #                                         title="Save File",
+        #                                         filetypes=  (("MLang Files", "*.ml"),))
         mlang_file = filedialog.asksaveasfilename(defaultextension=".ml",
-                                                initialdir="C:/Users/Gar-m/Desktop/javaMLang/running_examples",
+                                                initialdir= self.dir + "/running_examples",
                                                 title="Save File",
                                                 filetypes=  (("MLang Files", "*.ml"),))
         # if filename exists
@@ -125,8 +132,10 @@ class TheMainWindow:
         cpp_file.write(self.tokens_print_space.get(1.0, END))
         self.tokens_print_space.config(state = "disabled")
         cpp_file.close()
-        shutil.copyfile("C:/Users/Gar-m/Desktop/javaMLang/pythonGUI/matrixLib/Matrix.h", p+"Matrix.h")
-        os.system("g++ "+ p+name + " -o example")
+        # shutil.copyfile("C:/Users/Gar-m/Desktop/javaMLang/pythonGUI/matrixLib/Matrix.h", p+"Matrix.h")
+        shutil.copyfile(self.dir + '/pythonGUI/matrixLib/Matrix.h', p+"Matrix.h")
+        print(self.dir + '/pythonGUI/matrixLib/Matrix.h')
+        os.system("start g++ "+ p+name + " -o example")
         os.system("example")
 
     
@@ -142,6 +151,12 @@ class TheMainWindow:
     The TheMainWindow class constructor
     """
     def __init__(self, t_root):
+
+        """
+        CHANGE THIS FOR SETTING YOUR CURRENT WORKING DIRECTORY.
+        PLEASE SET THE LOCATION OF THE REPO
+        """
+        self.dir = "C:/Users/Gar-m/Desktop/javaMLang"
         """
         PY4J server run
         iniating server connection
@@ -154,6 +169,7 @@ class TheMainWindow:
         self.java_server_handler = self.gateway.entry_point               # get the AdditionApplication instance
         value = self.java_server_handler.addition(number1, number2) # call the addition method
         print(value)
+        self.bold_font = tkFont.Font(weight='bold')
         """
         Setting tkinter constructor
         """
@@ -214,7 +230,11 @@ class TheMainWindow:
         coordinate_start    = str(t_line) + "." + str(t_character_start)
         coordinate_end      = str(t_line) + "." + str(int(t_character_start) + t_length)
         # tag_name, coordinate_start, coordinate_end
-        self.text_one.tag_add(tag_name, coordinate_start, coordinate_end)
+        if t_color == 'green':
+            self.text_one.tag_configure(tag_name, font=self.bold_font)
+            self.text_one.tag_add(tag_name, coordinate_start, coordinate_end)
+        else:
+            self.text_one.tag_add(tag_name, coordinate_start, coordinate_end)
         # tag_name, foreground  = t_color
         self.text_one.tag_config(tag_name, foreground=t_color)
     

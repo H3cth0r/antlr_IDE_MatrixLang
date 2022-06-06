@@ -29,6 +29,9 @@ public class MyLangListener implements MLangListener {
 	boolean is_expression 	= false;
 	boolean is_write		= false;
 	public String translation = "";
+	public String to_asign_id = "";
+
+	boolean in_matrix_expression_val = false;
 
 
 	@Override public void enterProgramDeclaration(MLangParser.ProgramDeclarationContext ctx) {
@@ -70,7 +73,14 @@ public class MyLangListener implements MLangListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitInstruction(MLangParser.InstructionContext ctx) { }
+	@Override public void exitInstruction(MLangParser.InstructionContext ctx) {
+		is_int 			= false;
+		is_matrix		= false;
+		is_asignation	= false;
+		is_expression	= false;
+		is_write		= false;
+		is_declaration	= false;
+	}
 	/**
 	 * {@inheritDoc}
 	 *
@@ -90,12 +100,7 @@ public class MyLangListener implements MLangListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitDeclaration(MLangParser.DeclarationContext ctx) {
-		is_int 			= false;
-		is_matrix		= false;
-		is_asignation	= false;
-		is_expression	= false;
-		is_write		= false;
-		is_declaration	= false;
+
 	}
 	/**
 	 * {@inheritDoc}
@@ -126,31 +131,60 @@ public class MyLangListener implements MLangListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterAsignation(MLangParser.AsignationContext ctx) { }
+	@Override public void enterAsignation(MLangParser.AsignationContext ctx) {
+		is_int 			= false;
+		is_matrix		= false;
+		is_asignation	= true;
+		is_expression	= false;
+		is_write		= false;
+		is_declaration	= false;
+	}
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitAsignation(MLangParser.AsignationContext ctx) { }
+	@Override public void exitAsignation(MLangParser.AsignationContext ctx) {
+		if(declared_matrix.containsKey(to_asign_id) && in_matrix_expression_val == false){
+			throw new java.lang.Error("Semantic error at line " + ctx.start.getLine() + ". To Variable \"" + ctx.getText() + "\" Matrix object was not assigned.");
+		}
+		in_matrix_expression_val =false;
+
+	}
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterExpression(MLangParser.ExpressionContext ctx) { }
+	@Override public void enterExpression(MLangParser.ExpressionContext ctx) {
+		is_int 			= false;
+		is_matrix		= false;
+		is_asignation	= false;
+		is_expression	= true;
+		is_write		= false;
+		is_declaration	= false;
+	}
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitExpression(MLangParser.ExpressionContext ctx) { }
+	@Override public void exitExpression(MLangParser.ExpressionContext ctx) {
+
+	}
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void enterWrite(MLangParser.WriteContext ctx) {
+		is_int 			= false;
+		is_matrix		= false;
+		is_asignation	= false;
+		is_expression	= false;
+		is_write		= true;
+		is_declaration	= false;
+
 		translation += "std::cout << ";
 	}
 	/**
@@ -167,6 +201,12 @@ public class MyLangListener implements MLangListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void enterMatrix(MLangParser.MatrixContext ctx) {
+		if(declared_int.containsKey(to_asign_id)){
+			throw new java.lang.Error("Semantic error at line " + ctx.start.getLine() + ". Variable \"" + to_asign_id + "\" can't get a matrix for assignation.");
+		}
+		declared_matrix.put(to_asign_id, ctx.columns().getText());
+		in_matrix_expression_val = true;
+		ctx.columns().getText();
 		translation += "{";
 	}
 	/**
@@ -207,6 +247,9 @@ public class MyLangListener implements MLangListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void enterInteger(MLangParser.IntegerContext ctx) {
+		if(declared_int.containsKey(to_asign_id)){
+			declared_int.put(to_asign_id, ctx.getText());
+		}
 		translation += ctx.getText();
 	}
 	/**
@@ -328,6 +371,7 @@ public class MyLangListener implements MLangListener {
 	@Override public void enterTk_id(MLangParser.Tk_idContext ctx) {
 		translation += ctx.getText();
 
+
 		if(is_declaration){
 			if(is_matrix){
 				declared_matrix.put(ctx.getText(), "");
@@ -339,16 +383,51 @@ public class MyLangListener implements MLangListener {
 			/*	In case variable is not being declared, check if it was declared*/
 			/* Here must also check if the variable type the type of value it should be assigned*/
 			// Must also check here that the value that is being assigned is the type it should be assigned
-			if(!declared_matrix.containsKey(ctx.getText())){
-
-			}
-			if(!declared_int.containsKey(ctx.getText())){
-
+			to_asign_id = ctx.getText();
+			if(!declared_matrix.containsKey(ctx.getText()) && !declared_int.containsKey(ctx.getText())){
+				// throw error
+				throw new java.lang.Error("Semantic error at line " + ctx.start.getLine() + ". Variable \"" + ctx.getText() + "\" not declared.");
 			}
 		}else if(is_expression){
+			// In case the var that expression is being assigned to is matrix and is assigned a Matrix type
+			if(declared_matrix.containsKey(ctx.getText()) && declared_matrix.containsKey(to_asign_id)){
+				in_matrix_expression_val = true;
+			}
+
+			// check if some of the hashmaps contain the key and add the token id
+			if(declared_int.containsKey(to_asign_id)){
+				if(declared_matrix.containsKey(ctx.getText())){
+					throw new java.lang.Error("Semantic error at line " + ctx.start.getLine() + ", " + ctx.start.getCharPositionInLine()+ ". Matrix variable \"" + ctx.getText() + "\" cant be assign integer.");
+				}
+			}
+			if(declared_int.containsKey(ctx.getText())){
+				if(declared_int.containsKey(to_asign_id)) {
+					declared_int.put(to_asign_id, ctx.getText());
+				}else if(declared_matrix.containsKey(to_asign_id)){
+					declared_matrix.put(to_asign_id, ctx.getText());
+				}
+			}else if(declared_matrix.containsKey(ctx.getText())){
+				if(declared_int.containsKey(to_asign_id)) {
+					declared_int.put(to_asign_id, ctx.getText());
+				}else if(declared_matrix.containsKey(to_asign_id)){
+					declared_matrix.put(to_asign_id, ctx.getText());
+				}
+			}
 			/*	In case variable is not being declared, check if it was declared and assigned a value */
+			if(!declared_int.containsKey(ctx.getText()) &&  !declared_matrix.containsKey(ctx.getText())){
+				// throw error
+				throw new java.lang.Error("Semantic error at line " + ctx.start.getLine() + ". Variable \"" + ctx.getText() + "\" not declared.");
+			}else if(declared_int.get(ctx.getText()) == "" ||  declared_matrix.get(ctx.getText()) == ""){
+				throw new java.lang.Error("Semantic error at line " + ctx.start.getLine() + ". Variable \"" + ctx.getText() + "\" has no value assigned");
+			}
 		}else if(is_write) {
 			/* Check if the variables was declared and assigned a value */
+			if(!declared_int.containsKey(ctx.getText()) &&  !declared_matrix.containsKey(ctx.getText())){
+				// throw error
+				throw new java.lang.Error("Semantic error at line " + ctx.start.getLine() + ". Variable \"" + ctx.getText() + "\" not declared.");
+			}else if(declared_int.get(ctx.getText()) == "" ||  declared_matrix.get(ctx.getText()) == ""){
+				throw new java.lang.Error("Semantic error at line " + ctx.start.getLine() + ". Variable \"" + ctx.getText() + "\" has no value assigned");
+			}
 		}
 	}
 	/**
