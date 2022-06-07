@@ -29,3 +29,8 @@ Your must start the server before running the python IDE, this is because the py
 
 ## Running the proyect
 The following is as example of how the proyect gets runned and how it should behave.
+
+
+https://user-images.githubusercontent.com/43997408/172416448-325135c9-a64a-466a-a1ea-b0d3912733b4.mp4
+
+
