@@ -5,9 +5,9 @@ TODO
 main
 {
 matrix A, B, R1, R2, R3;
-int Z, number, number_two;
+int Z, number, number_two, T;
 
-Z = 1;
+Z = 3;
 
 number_two = 2;
 number = number_two;
@@ -23,6 +23,8 @@ R3= ^R2 + R1;
 
 write R3;
 }
+
+
 
 
 

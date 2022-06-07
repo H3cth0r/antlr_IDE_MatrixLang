@@ -3,8 +3,8 @@ int main()
 {
 	
 Matrix A, B, R1, R2, R3;	
-double Z, number, number_two;	
-Z=1;	
+double Z, number, number_two, T;	
+Z=3;	
 number_two=2;	
 number=number_two;	
 double number_1;	
