@@ -134,9 +134,11 @@ class TheMainWindow:
         cpp_file.close()
         # shutil.copyfile("C:/Users/Gar-m/Desktop/javaMLang/pythonGUI/matrixLib/Matrix.h", p+"Matrix.h")
         shutil.copyfile(self.dir + '/pythonGUI/matrixLib/Matrix.h', p+"Matrix.h")
-        print("start g++ " + p + name + " -o example")
-        os.system("start g++ "+ p+name + " -o example")
-        os.system("example")
+        print("start g++ " + p + name + " -o " + p+os.path.split(self.current_open_file_path)[1].split(".")[0])
+        second_name = os.path.split(self.current_open_file_path)[1].split(".")[0]
+        os.system(f"cd \"{p}\" && g++ {name} -o {second_name} && \"{p}\"{second_name} ")
+        # os.system("start g++ "+ p+name + " -o " + p + os.path.split(self.current_open_file_path)[1].split(".")[0])
+        # os.system("start " + p+os.path.split(self.current_open_file_path)[1].split(".")[0])
 
     
     """
