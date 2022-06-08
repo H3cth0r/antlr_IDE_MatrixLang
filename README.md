@@ -34,6 +34,12 @@ The following is as example of how the proyect gets runned and how it should beh
 
 https://user-images.githubusercontent.com/43997408/172416448-325135c9-a64a-466a-a1ea-b0d3912733b4.mp4
 
+
+## More Information
+If you wish to know more about this project, please follow this link to access our official delivery document:
+´´´
+https://docs.google.com/document/d/1smCE5Tqli0ZPODH1wwqIDNxRifCLz33uxsBHzu18FkM/edit?usp=sharing
+´´´
 ## ANTLR Grammar
 ```
 grammar MLang;
