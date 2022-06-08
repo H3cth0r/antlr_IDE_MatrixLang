@@ -23,8 +23,6 @@ from pathlib import Path
 Main class that will enable us to generate a window.
 """
 class TheMainWindow:
-    def hi(self):
-        print("YESYESYES")
     """
     Method for creating new file
     This file will open file dialog to create a file
@@ -62,12 +60,6 @@ class TheMainWindow:
     Method for saving as
     """
     def file_save_as(self):
-        # self.file_new()
-        # Change this line 60 for setting the default directory
-        # mlang_file = filedialog.asksaveasfilename(defaultextension=".ml",
-        #                                         initialdir="C:/Users/Gar-m/Desktop/javaMLang/running_examples",
-        #                                         title="Save File",
-        #                                         filetypes=  (("MLang Files", "*.ml"),))
         mlang_file = filedialog.asksaveasfilename(defaultextension=".ml",
                                                 initialdir= self.dir + "/running_examples",
                                                 title="Save File",
